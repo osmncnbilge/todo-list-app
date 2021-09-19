@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <Container maxWidth="sm">
-        <Grid sx={{ height: "100vh" }} container direction="column">
+        <Grid container direction="column">
           <Grid item sx={{ display: "flex", justifyContent: "center" }}>
             <h1>To Do List</h1>
           </Grid>

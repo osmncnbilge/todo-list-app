@@ -34,6 +34,7 @@ app.put("/:id", async (req, res) => {
   const todo = await Todo.findById(todoId);
   if (todo) {
     todo.name = req.body.name;
+    todo.completed = req.body.completed;
     const updatedTodo = await todo.save();
 
     if (updatedTodo) {

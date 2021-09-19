@@ -16,13 +16,22 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import { useDispatch, useSelector } from "react-redux";
 import { getTodoList } from "../actions/todoActions";
+import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress";
+import alertify from "alertifyjs";
+
+const url = process.env.REACT_APP_API_URL || "http://localhost:5000/";
 
 function TodoList() {
-  const dispatch = useDispatch();
   const editInputRef = useRef();
+  const dispatch = useDispatch();
   const todoList = useSelector((state) => state.todoList);
-  const { todos } = todoList;
-  const [isEditTodoText, setIsEditTodoText] = useState("");
+  const { todos, loading } = todoList;
+  const [editingTodo, setEditingTodo] = useState({
+    _id: "",
+    name: "",
+    completed: false,
+  });
 
   useEffect(() => {
     dispatch(getTodoList());
@@ -37,85 +46,118 @@ function TodoList() {
     }, 50);
   };
 
-  const editTodoText = (todo) => {
-    setIsEditTodoText(todo.text);
-  };
-  const changeTodoStatus = (todo) => {
-    console.log("todo status changed:", todo, "toggle:", !todo.completed);
+  const updateTextTodo = async () => {
+    if (!editingTodo.name) {
+      alertify.set("notifier", "position", "top-right");
+      alertify.warning("Todo does not empty.");
+      return;
+    }
+    try {
+      await axios.put(url + editingTodo._id, editingTodo);
+      setEditingTodo({ _id: "", name: "", completed: false });
+      dispatch(getTodoList());
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
-  const deleteTodo = (todo) => {
-    console.log("todo:", todo);
+  const changeTodoStatus = async (todo) => {
+    try {
+      await axios.put(url + todo._id, {
+        ...todo,
+        completed: !todo.completed,
+      });
+      dispatch(getTodoList());
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const deleteTodo = async (todo) => {
+    try {
+      await axios.delete(url + todo._id);
+      dispatch(getTodoList());
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   return (
-    <Paper sx={{ padding: isEditTodoText && 3 }}>
-      {isEditTodoText ? (
-        <Input
-          inputRef={editInputRef}
-          fullWidth
-          value={isEditTodoText}
-          onChange={(e) => setIsEditTodoText(e.target.value)}
-          endAdornment={
-            <InputAdornment position="end" sx={{ paddingBottom: 1 }}>
-              <IconButton onClick={(e) => setIsEditTodoText("")}>
-                <SaveIcon />
-              </IconButton>
-            </InputAdornment>
-          }
-        />
-      ) : (
-        <List>
-          {todos?.map((todo) => (
-            <ListItem
-              key={todo._id}
-              secondaryAction={
-                <>
-                  <IconButton
-                    edge="end"
-                    onClick={() => {
-                      editTodoText(todo);
-                      focusEditInput();
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    onClick={() => {
-                      deleteTodo(todo);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </>
+    <>
+      {todos.length > 0 && (
+        <Paper sx={{ padding: editingTodo._id && 3 }}>
+          {editingTodo._id ? (
+            <Input
+              inputRef={editInputRef}
+              fullWidth
+              value={editingTodo.name}
+              onChange={(e) =>
+                setEditingTodo({ ...editingTodo, name: e.target.value })
               }
-            >
-              <ListItemButton
-                disableRipple
-                onClick={(event) => {
-                  changeTodoStatus(todo);
-                }}
-                sx={{
-                  padding: 0,
-                  "&:hover": {
-                    backgroundColor: "transparent",
-                  },
-                }}
-              >
-                <ListItemIcon>
-                  <Checkbox edge="start" defaultChecked={todo.completed} />
-                </ListItemIcon>
-                <ListItemText
-                  sx={{ textDecoration: todo.completed && "line-through" }}
-                  primary={todo.text}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+              endAdornment={
+                <InputAdornment position="end" sx={{ paddingBottom: 1 }}>
+                  <IconButton onClick={updateTextTodo}>
+                    <SaveIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          ) : loading ? (
+            <CircularProgress />
+          ) : (
+            <List>
+              {todos?.map((todo) => (
+                <ListItem
+                  key={todo._id}
+                  secondaryAction={
+                    <>
+                      <IconButton
+                        edge="end"
+                        onClick={() => {
+                          setEditingTodo(todo);
+                          focusEditInput();
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        onClick={() => {
+                          deleteTodo(todo);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  }
+                >
+                  <ListItemButton
+                    disableRipple
+                    onClick={() => {
+                      changeTodoStatus(todo);
+                    }}
+                    sx={{
+                      padding: 0,
+                      "&:hover": {
+                        backgroundColor: "transparent",
+                      },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Checkbox edge="start" defaultChecked={todo.completed} />
+                    </ListItemIcon>
+                    <ListItemText
+                      sx={{ textDecoration: todo.completed && "line-through" }}
+                      primary={todo.name}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Paper>
       )}
-    </Paper>
+    </>
   );
 }
 

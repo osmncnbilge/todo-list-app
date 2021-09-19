@@ -6,13 +6,18 @@ import React, {
 } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { Grid, IconButton, Input, InputAdornment, Paper } from "@mui/material";
-import { v4 as uuid_v4 } from "uuid";
+import axios from "axios";
+import { getTodoList } from "../actions/todoActions";
+import { useDispatch } from "react-redux";
+import alertify from "alertifyjs";
+
+const url = process.env.REACT_APP_API_URL || "http://localhost:5000/";
 
 function TodoInput(props, ref) {
+  const dispatch = useDispatch();
   const inputRef = useRef();
   const [newTodo, setNewTodo] = useState({
-    _id: "",
-    text: "",
+    name: "",
     completed: false,
   });
 
@@ -22,11 +27,20 @@ function TodoInput(props, ref) {
     },
   }));
 
-  const addNewTod = () => {
-    setNewTodo({ ...newTodo, _id: uuid_v4() });
-    console.log({ newTodo });
-    setNewTodo({ _id: "", text: "", completed: false });
-    inputRef.current.focus();
+  const addTodo = async () => {
+    if (!newTodo.name) {
+      alertify.set("notifier", "position", "top-right");
+      alertify.warning("Todo does not empty.");
+      return;
+    }
+    try {
+      await axios.post(url, newTodo);
+      dispatch(getTodoList());
+      inputRef.current.focus();
+      setNewTodo({ ...newTodo, name: "" });
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   return (
@@ -35,14 +49,14 @@ function TodoInput(props, ref) {
         <Input
           inputRef={inputRef}
           fullWidth
-          value={newTodo.text}
+          value={newTodo.name}
           onChange={(event) =>
-            setNewTodo({ ...newTodo, text: event.target.value })
+            setNewTodo({ ...newTodo, name: event.target.value })
           }
           placeholder="Enter a new To Do"
           endAdornment={
             <InputAdornment position="end" sx={{ paddingBottom: 1 }}>
-              <IconButton onClick={addNewTod}>
+              <IconButton onClick={addTodo}>
                 <AddIcon />
               </IconButton>
             </InputAdornment>
