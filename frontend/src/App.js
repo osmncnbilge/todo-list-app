@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { Container } from "@mui/material";
 import TodoInput from "./components/TodoInput";
 import TodoList from "./components/TodoList";
 
 function App() {
+  const todoInputRef = useRef();
+  useEffect(() => {
+    todoInputRef.current.focus();
+  }, []);
   return (
     <>
       <Container maxWidth="sm">
@@ -13,7 +17,7 @@ function App() {
             <h1>To Do List</h1>
           </Grid>
           <Grid container sx={{ display: "flex", justifyContent: "center" }}>
-            <TodoInput />
+            <TodoInput ref={todoInputRef} />
             <Grid item xs={12} style={{ margin: "10px 0" }}>
               <TodoList />
             </Grid>
