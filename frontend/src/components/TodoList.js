@@ -84,7 +84,7 @@ function TodoList() {
 
   return (
     <>
-      {todos.length > 0 && (
+      {todos?.length > 0 && (
         <Paper sx={{ padding: editingTodo._id && 3 }}>
           {editingTodo._id ? (
             <Input
