@@ -14,22 +14,19 @@ import {
   InputAdornment,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import axios from "axios";
-
-const url = process.env.REACT_APP_API_URL || "http://localhost:5000";
+import { useDispatch, useSelector } from "react-redux";
+import { getTodoList } from "../actions/todoActions";
 
 function TodoList() {
+  const dispatch = useDispatch();
   const editInputRef = useRef();
-  const [todos, setTodos] = useState([]);
+  const todoList = useSelector((state) => state.todoList);
+  const { todos } = todoList;
   const [isEditTodoText, setIsEditTodoText] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await axios.get(url);
-      setTodos(data);
-    };
-    fetchData();
-  }, []);
+    dispatch(getTodoList());
+  }, [dispatch]);
 
   const focusEditInput = () => {
     const interval = setInterval(() => {
