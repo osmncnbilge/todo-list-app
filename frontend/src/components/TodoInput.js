@@ -11,7 +11,7 @@ import { getTodoList } from "../actions/todoActions";
 import { useDispatch } from "react-redux";
 import alertify from "alertifyjs";
 
-const url = process.env.REACT_APP_API_URL || "http://localhost:5000/";
+const url = process.env.REACT_APP_API_URL || "http://localhost:5000/api/todos";
 
 function TodoInput(props, ref) {
   const dispatch = useDispatch();

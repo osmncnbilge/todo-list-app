@@ -20,7 +20,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import alertify from "alertifyjs";
 
-const url = process.env.REACT_APP_API_URL || "http://localhost:5000/";
+const url = process.env.REACT_APP_API_URL || "http://localhost:5000/api/todos";
 
 function TodoList() {
   const editInputRef = useRef();
@@ -53,7 +53,7 @@ function TodoList() {
       return;
     }
     try {
-      await axios.put(url + editingTodo._id, editingTodo);
+      await axios.put(url + `/${editingTodo._id}`, editingTodo);
       setEditingTodo({ _id: "", name: "", completed: false });
       dispatch(getTodoList());
     } catch (error) {
@@ -63,7 +63,7 @@ function TodoList() {
 
   const changeTodoStatus = async (todo) => {
     try {
-      await axios.put(url + todo._id, {
+      await axios.put(url + `/${todo._id}`, {
         ...todo,
         completed: !todo.completed,
       });
@@ -75,7 +75,7 @@ function TodoList() {
 
   const deleteTodo = async (todo) => {
     try {
-      await axios.delete(url + todo._id);
+      await axios.delete(url + `/${todo._id}`);
       dispatch(getTodoList());
     } catch (error) {
       console.error(error.message);
