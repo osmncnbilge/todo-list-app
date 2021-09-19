@@ -14,11 +14,22 @@ import {
   InputAdornment,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import data from "../data";
+import axios from "axios";
+
+const url = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function TodoList() {
   const editInputRef = useRef();
+  const [todos, setTodos] = useState([]);
   const [isEditTodoText, setIsEditTodoText] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get(url);
+      setTodos(data);
+    };
+    fetchData();
+  }, []);
 
   const focusEditInput = () => {
     const interval = setInterval(() => {
@@ -32,8 +43,8 @@ function TodoList() {
   const editTodoText = (todo) => {
     setIsEditTodoText(todo.text);
   };
-  const changeTodoStatus = (todo, event) => {
-    console.log("todo status changed:", todo, "event:", event.target.checked);
+  const changeTodoStatus = (todo) => {
+    console.log("todo status changed:", todo, "toggle:", !todo.completed);
   };
 
   const deleteTodo = (todo) => {
@@ -58,7 +69,7 @@ function TodoList() {
         />
       ) : (
         <List>
-          {data.todos.map((todo) => (
+          {todos?.map((todo) => (
             <ListItem
               key={todo._id}
               secondaryAction={
@@ -85,6 +96,9 @@ function TodoList() {
             >
               <ListItemButton
                 disableRipple
+                onClick={(event) => {
+                  changeTodoStatus(todo);
+                }}
                 sx={{
                   padding: 0,
                   "&:hover": {
@@ -93,13 +107,7 @@ function TodoList() {
                 }}
               >
                 <ListItemIcon>
-                  <Checkbox
-                    edge="start"
-                    defaultChecked={todo.completed}
-                    onChange={(event) => {
-                      changeTodoStatus(todo, event);
-                    }}
-                  />
+                  <Checkbox edge="start" defaultChecked={todo.completed} />
                 </ListItemIcon>
                 <ListItemText
                   sx={{ textDecoration: todo.completed && "line-through" }}

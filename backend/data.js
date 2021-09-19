@@ -13,7 +13,7 @@ const data = {
     {
       _id: "3",
       text: "Denme 3",
-      completed: false,
+      completed: true,
     },
   ],
 };
