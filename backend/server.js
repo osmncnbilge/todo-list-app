@@ -1,16 +1,22 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import path from "path";
 import Todo from "./models/todoModel.js";
+import { mongoURI } from "./config/keys.js";
 
 const app = express();
-mongoose.connect("mongodb://localhost/todo-app", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
 
 app.use(cors());
 app.use(express.json());
+
+mongoose
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Mongodb Connected..."))
+  .catch((e) => console.log(e));
 
 app.get("/", async (req, res) => {
   const todos = await Todo.find({});
@@ -53,6 +59,14 @@ app.delete("/:id", async (req, res) => {
     return res.send({ msg: "Error in Deletion." });
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("frontend/build"));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
+  });
+}
 
 const port = process.env.PORT || 5000;
 
