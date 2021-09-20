@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import path from "path";
-import todoRoutes from "./backend/routes/todoRoutes.js";
+import todoRoutes from "./routes/todoRoutes.js";
 import { mongoURI } from "./config/keys.js";
 
 mongoose
