@@ -20,7 +20,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import alertify from "alertifyjs";
 
-function TodoList() {
+function TodoList(props) {
   const editInputRef = useRef();
   const dispatch = useDispatch();
   const todoList = useSelector((state) => state.todoList);
@@ -75,6 +75,7 @@ function TodoList() {
     try {
       await axios.delete(`/api/todos/${todo._id}`);
       dispatch(getTodoList());
+      props.todoInputRef.current.focus();
     } catch (error) {
       console.error(error.message);
     }
@@ -89,6 +90,7 @@ function TodoList() {
               inputRef={editInputRef}
               fullWidth
               value={editingTodo.name}
+              onKeyDown={(e) => e.key === "Enter" && updateTextTodo()}
               onChange={(e) =>
                 setEditingTodo({ ...editingTodo, name: e.target.value })
               }
@@ -133,12 +135,6 @@ function TodoList() {
                     disableRipple
                     onClick={() => {
                       changeTodoStatus(todo);
-                    }}
-                    sx={{
-                      padding: 0,
-                      "&:hover": {
-                        backgroundColor: "transparent",
-                      },
                     }}
                   >
                     <ListItemIcon>

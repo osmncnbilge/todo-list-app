@@ -48,6 +48,7 @@ function TodoInput(props, ref) {
           inputRef={inputRef}
           fullWidth
           value={newTodo.name}
+          onKeyDown={(e) => e.key === "Enter" && addTodo()}
           onChange={(event) =>
             setNewTodo({ ...newTodo, name: event.target.value })
           }

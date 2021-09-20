@@ -20,7 +20,7 @@ export default function TodoScreen() {
           <Grid container sx={{ display: "flex", justifyContent: "center" }}>
             <TodoInput ref={todoInputRef} />
             <Grid item xs={12} style={{ margin: "10px 0" }}>
-              <TodoList />
+              <TodoList todoInputRef={todoInputRef}/>
             </Grid>
           </Grid>
         </Grid>
